@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">KinopoiskParser</string>
+    <string name="rating_title">Rating:</string>
 </resources>

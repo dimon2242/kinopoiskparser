@@ -2,12 +2,60 @@ package com.example.dmitry.kinopoiskparser;
 
 import android.graphics.Bitmap;
 
-public class Movie {
+import java.io.Serializable;
+import java.util.UUID;
+
+public class Movie implements Serializable {
 
     private String mTitle;
-    private Bitmap mBitmap;
+    private Bitmap mSmallThumbBitmap;
+    private Bitmap mBigThumbBitmap;
     private String mURL;
     private String mProducer;
+    private String mFullTitle;
+    private UUID mId;
+    private String mDescription;
+    private float mRating;
+
+    public float getRating() {
+        return mRating;
+    }
+
+    public void setRating(float rating) {
+        mRating = rating;
+    }
+
+    public String getFullTitle() {
+        return mFullTitle;
+    }
+
+    public void setFullTitle(String fullTitle) {
+        mFullTitle = fullTitle;
+    }
+
+    public String getDescription() {
+        return mDescription;
+    }
+
+    public void setDescription(String description) {
+        mDescription = description;
+    }
+
+    public Movie() {
+        mId = UUID.randomUUID();
+    }
+
+    public UUID getId() {
+        return mId;
+    }
+
+    public Bitmap getBigThumbBitmap() {
+        return mBigThumbBitmap;
+    }
+
+    public void setBigThumbBitmap(Bitmap bigThumbBitmap) {
+        mBigThumbBitmap = bigThumbBitmap;
+    }
 
     public String getProducer() {
         return mProducer;
@@ -33,11 +81,11 @@ public class Movie {
         mTitle = title;
     }
 
-    public Bitmap getBitmap() {
-        return mBitmap;
+    public Bitmap getSmallThumbBitmap() {
+        return mSmallThumbBitmap;
     }
 
-    public void setBitmap(Bitmap bitmap) {
-        mBitmap = bitmap;
+    public void setSmallThumbBitmap(Bitmap smallThumbBitmap) {
+        mSmallThumbBitmap = smallThumbBitmap;
     }
 }

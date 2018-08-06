@@ -1,7 +1,5 @@
 package com.example.dmitry.kinopoiskparser;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,16 +19,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
 
 public class SearchFragment extends Fragment {
 
     private List<Movie> mMovies;
+    private MoviesSingleton mMoviesSingleton;
     private RecyclerView mMoviesRecyclerView;
     private MovieAdapter mAdapter;
     private LinearLayoutManager mLinearLayoutManager;
@@ -45,7 +41,7 @@ public class SearchFragment extends Fragment {
         DividerItemDecoration divider = new DividerItemDecoration(getContext(), mLinearLayoutManager.getOrientation());
         mMoviesRecyclerView.addItemDecoration(divider);
 
-        mMovies = new ArrayList<>();
+        mMoviesSingleton = MoviesSingleton.get(getActivity());
         SearchInfoDownloader SID = new SearchInfoDownloader();
         SID.execute(urlConstructor("мстители"));
         //updateUI();
@@ -62,17 +58,6 @@ public class SearchFragment extends Fragment {
         return url;
     }
 
-    private Bitmap thumbDownloader(String url) {
-        Bitmap thumb = null;
-        try {
-            InputStream is = new URL(url).openStream();
-            thumb = BitmapFactory.decodeStream(is);
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-        return thumb;
-    }
-
     private class MovieHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView mTitleTextView;
@@ -82,6 +67,7 @@ public class SearchFragment extends Fragment {
 
         public MovieHolder(View itemView) {
             super(itemView);
+            itemView.setOnClickListener(this);
             mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_movie_title_text_view);
             mProducerTextView = (TextView) itemView.findViewById(R.id.list_item_movie_producer_text_view);
             mPicImageView = (ImageView) itemView.findViewById(R.id.list_item_movie_thumb_image_view);
@@ -91,12 +77,12 @@ public class SearchFragment extends Fragment {
             mMovie = movie;
             mTitleTextView.setText(mMovie.getTitle());
             mProducerTextView.setText(mMovie.getProducer());
-            mPicImageView.setImageBitmap(mMovie.getBitmap());
+            mPicImageView.setImageBitmap(mMovie.getSmallThumbBitmap());
         }
 
         @Override
         public void onClick(View v) {
-
+            startActivity(MovieDetailActivity.newIntent(getActivity(), mMovie.getId()));
         }
     }
 
@@ -145,10 +131,10 @@ public class SearchFragment extends Fragment {
                         Log.d("ASYNC", title + " " + movie.select(".gray i a").text() + " " + movieUrl);
                         Movie m = new Movie();
                         m.setTitle(title);
-                        m.setBitmap(thumbDownloader("https://www.kinopoisk.ru/images/sm_film/" + imgNumber + ".jpg"));
+                        m.setSmallThumbBitmap(ImageDownloader.get("https://www.kinopoisk.ru/images/sm_film/" + imgNumber + ".jpg"));
                         m.setProducer(producer);
                         m.setURL(movieUrl);
-                        mMovies.add(m);
+                        mMoviesSingleton.addMovie(m);
                     }
                 }
             } catch(IOException e) {
@@ -165,6 +151,7 @@ public class SearchFragment extends Fragment {
     }
 
     private void updateUI() {
+        mMovies = mMoviesSingleton.getMovies();
         mAdapter = new MovieAdapter(mMovies);
         mMoviesRecyclerView.setAdapter(mAdapter);
     }
