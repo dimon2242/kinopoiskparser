@@ -6,4 +6,13 @@
     android:theme="@style/ToolbarColor"
 
     android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"/>
+    android:layout_height="?attr/actionBarSize">
+    <EditText
+        android:visibility="gone"
+        android:imeOptions="actionSearch"
+        android:singleLine="true"
+        android:inputType="text"
+        android:id="@+id/toolbar_search_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</android.support.v7.widget.Toolbar>

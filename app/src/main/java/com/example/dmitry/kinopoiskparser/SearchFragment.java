@@ -3,13 +3,23 @@ package com.example.dmitry.kinopoiskparser;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,6 +40,16 @@ public class SearchFragment extends Fragment {
     private RecyclerView mMoviesRecyclerView;
     private MovieAdapter mAdapter;
     private LinearLayoutManager mLinearLayoutManager;
+    private EditText mSearchEditText;
+    private Toolbar mToolbar;
+    private String mSearchTitle;
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -40,12 +60,46 @@ public class SearchFragment extends Fragment {
         mMoviesRecyclerView.setLayoutManager(mLinearLayoutManager);
         DividerItemDecoration divider = new DividerItemDecoration(getContext(), mLinearLayoutManager.getOrientation());
         mMoviesRecyclerView.addItemDecoration(divider);
+        mSearchEditText = (EditText) ((AppCompatActivity) getActivity()).findViewById(R.id.toolbar_search_edit_text);
+
+        mSearchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mSearchTitle = s.toString();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        mSearchEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                if(actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    startSearch(mSearchTitle);
+                    return true;
+                }
+                return false;
+            }
+        });
 
         mMoviesSingleton = MoviesSingleton.get(getActivity());
-        SearchInfoDownloader SID = new SearchInfoDownloader();
-        SID.execute(urlConstructor("мстители"));
-        //updateUI();
+
         return v;
+    }
+
+    private void startSearch(String title) {
+        mMoviesSingleton.clear();
+        SearchInfoDownloader SID = new SearchInfoDownloader();
+        SID.execute(urlConstructor(title));
     }
 
     private String urlConstructor(String request) {
@@ -154,5 +208,29 @@ public class SearchFragment extends Fragment {
         mMovies = mMoviesSingleton.getMovies();
         mAdapter = new MovieAdapter(mMovies);
         mMoviesRecyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.menu_search) {
+            if(mSearchEditText.getVisibility() == View.GONE) {
+                mSearchEditText.setVisibility(View.VISIBLE);
+                ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+            } else {
+                mSearchEditText.setVisibility(View.GONE);
+                ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
+                ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mSearchTitle);
+                startSearch(mSearchTitle);
+            }
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

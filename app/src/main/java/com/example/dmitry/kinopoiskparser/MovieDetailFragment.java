@@ -77,9 +77,9 @@ public class MovieDetailFragment extends Fragment {
         Document doc;
         float rating = 0;
         doc = Jsoup.connect(movie.getURL()).get();
-        Element tag = doc.getElementById("block_rating");
-        Elements elements = tag.select(".block_2 > .div1");
-        Elements metas = elements.select("meta[itemprop=ratingValue]");
+        //Element tag = doc.getElementById("block_rating");
+        //Elements elements = tag.select(".block_2 > .div1");
+        Elements metas = doc.select("meta[itemprop=ratingValue]");
         for (Element meta : metas) {
             String itemprop = meta.attr("itemprop");
             if("ratingValue".equals(itemprop)) {
@@ -94,12 +94,11 @@ public class MovieDetailFragment extends Fragment {
         Document doc;
         String description = null;
         doc = Jsoup.connect(movie.getURL()).get();
-        Elements tags = doc.select(".news");
+        Elements tags = doc.select("div[class=brand_words film-synopsys]");
         for(Element tag : tags) {
-            Element el = tag.selectFirst("._reachbanner_ > .brand_words.film-synopsys");
-            String itemprop = el.attr("itemprop");
+            String itemprop = tag.attr("itemprop");
             if("description".equals(itemprop)) {
-                description = el.text();
+                description = tag.text();
                 break;
             }
         }

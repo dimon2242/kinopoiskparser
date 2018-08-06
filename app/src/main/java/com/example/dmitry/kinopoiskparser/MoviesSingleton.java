@@ -36,6 +36,10 @@ public class MoviesSingleton {
         return null;
     }
 
+    public void clear() {
+        mMovies.clear();
+    }
+
     public void addMovie(Movie movie) {
         mMovies.add(movie);
     }
