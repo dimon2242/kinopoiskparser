@@ -77,8 +77,6 @@ public class MovieDetailFragment extends Fragment {
         Document doc;
         float rating = 0;
         doc = Jsoup.connect(movie.getURL()).get();
-        //Element tag = doc.getElementById("block_rating");
-        //Elements elements = tag.select(".block_2 > .div1");
         Elements metas = doc.select("meta[itemprop=ratingValue]");
         for (Element meta : metas) {
             String itemprop = meta.attr("itemprop");
