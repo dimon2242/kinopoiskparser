@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -32,13 +33,17 @@ public class SearchFragment extends Fragment {
     private List<Movie> mMovies;
     private RecyclerView mMoviesRecyclerView;
     private MovieAdapter mAdapter;
+    private LinearLayoutManager mLinearLayoutManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_search, container, false);
 
+        mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mMoviesRecyclerView = (RecyclerView) v.findViewById(R.id.search_list_recycler_view);
-        mMoviesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mMoviesRecyclerView.setLayoutManager(mLinearLayoutManager);
+        DividerItemDecoration divider = new DividerItemDecoration(getContext(), mLinearLayoutManager.getOrientation());
+        mMoviesRecyclerView.addItemDecoration(divider);
 
         mMovies = new ArrayList<>();
         SearchInfoDownloader SID = new SearchInfoDownloader();
@@ -68,7 +73,7 @@ public class SearchFragment extends Fragment {
         return thumb;
     }
 
-    private class MovieHolder extends RecyclerView.ViewHolder {
+    private class MovieHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView mTitleTextView;
         private TextView mProducerTextView;
@@ -87,6 +92,11 @@ public class SearchFragment extends Fragment {
             mTitleTextView.setText(mMovie.getTitle());
             mProducerTextView.setText(mMovie.getProducer());
             mPicImageView.setImageBitmap(mMovie.getBitmap());
+        }
+
+        @Override
+        public void onClick(View v) {
+
         }
     }
 
@@ -129,11 +139,15 @@ public class SearchFragment extends Fragment {
                     Elements movies = doc.select(".info");
                     for(Element movie : movies) {
                         String title = movie.select(".name a").text() + " / " + movie.selectFirst(".gray").text() + " " + movie.select(".name .year").text();
-                        Log.d("ASYNC", title + " " + movie.select(".gray i a").text());
+                        String imgNumber = movie.selectFirst(".name a").attr("data-id");
+                        String producer = movie.select(".gray i a").text();
+                        String movieUrl = "https://www.kinopoisk.ru" + movie.selectFirst("a").attr("data-url");
+                        Log.d("ASYNC", title + " " + movie.select(".gray i a").text() + " " + movieUrl);
                         Movie m = new Movie();
                         m.setTitle(title);
-                        m.setBitmap(thumbDownloader("https://www.kinopoisk.ru/images/sm_film/" + movie.selectFirst(".name a").attr("data-id") + ".jpg"));
-                        m.setProducer(movie.select(".gray i a").text());
+                        m.setBitmap(thumbDownloader("https://www.kinopoisk.ru/images/sm_film/" + imgNumber + ".jpg"));
+                        m.setProducer(producer);
+                        m.setURL(movieUrl);
                         mMovies.add(m);
                     }
                 }
